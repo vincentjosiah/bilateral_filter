@@ -6,13 +6,9 @@ from skimage.util import random_noise
 # p is center of the mask
 # q is a point in S
 # variance is a constant value
-def gaussian(p,q, variance):
-    x = np.round(np.linalg.norm(p-q), 2)
-    return (1/((2 * np.pi) * variance**2)) * np.exp(-0.5 * (x**2/variance**2))
-
-def gaussian_intensity(i_p,i_q, variance):
-    x = i_p- i_q
-    return (1 / ((2 * np.pi) * variance ** 2)) * np.exp(-0.5 * (x ** 2 / variance ** 2))
+def gaussian(x, x_i, variance):
+    x = np.round(np.linalg.norm(x-x_i), 2)
+    return (1/(variance * (2 * np.pi))) * np.exp(-0.5 * (x**2/variance**2))
 
 def sp_noise(image,prob):
     output = np.zeros(image.shape,np.uint8)
@@ -30,41 +26,42 @@ def sp_noise(image,prob):
 
 
 img = cv2.imread("image.jpg")
+original = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 a = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-a = sp_noise(a, 0.05)
+a = sp_noise(a, 0.01)
 
 b = a.size
 
 a = a.astype('float64')
 
-# Mask size
-n = 3
-n1 = int(np.ceil(n/2))
+mask_size = 7
+cp_index = int(np.ceil(mask_size/2)) - 1     # 1
+
 variance_s = 50
 variance_r = 25
 
-c = 0
-c1 = 0
-d = np.zeros(a.shape)
+numerator = 0
+denominator = 0
+filtered_img = np.zeros(a.shape)
 
 # 5->300-5
-for i in range(n1-1,a.shape[0]-n1+1):
-    for j in range(n1-1, a.shape[1]-n1+1):
-        p = np.array([i,j])     # p is the center point
-        for k in range(i-n1+1,i-n1+1+n):
-            for l in range(j-n1+1,j-n1+1+n):
-                q = np.array([k,l])
-                c += gaussian(q, p, variance_s) * gaussian_intensity(a[i,j], a[k,l], variance_r) * a[i,j]
-                c1 += gaussian(p, q, variance_s) * gaussian_intensity(a[i,j], a[k,l], variance_r)
-        d[i,j] = c/c1
-        c = 0
-        c1 = 0
+for i in range(cp_index, a.shape[0]-cp_index):
+    for j in range(cp_index, a.shape[1]-cp_index):
+        x = np.array([i, j])
+        for k in range(i-cp_index, i-cp_index+mask_size):
+            for l in range(j-cp_index, j-cp_index+mask_size):
+                x_i = np.array([k,l])
+                numerator += a[k,l] * gaussian(a[k, l], a[i, j], variance_r) * gaussian(x_i, x, variance_s)
+                denominator += gaussian(a[k, l], a[i, j], variance_r) * gaussian(x_i, x, variance_s)
+        filtered_img[i,j] = numerator/denominator
+        numerator = 0
+        denominator = 0
     print(i)
 
 
-d1 = d.astype(np.uint8)
+filtered_img_uint = filtered_img.astype(np.uint8)
 
-cv2.imshow("filtered", d1)
+cv2.imshow("filtered", filtered_img_uint)
 
 
 cv2.waitKey(0)
