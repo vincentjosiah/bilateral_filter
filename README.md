@@ -28,6 +28,4 @@ The filter runs rather slow, so I recommend using a low-res image such as image.
 Using large masks will increase the time it takes for the algorithm to run, so I suggest picking something small like 3 or 5.
 
 ## Necessary Packages
-numpy
-cv2
-sys
+numpy, cv2, and sys.
