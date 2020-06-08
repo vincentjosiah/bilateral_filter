@@ -15,7 +15,7 @@ The user can also choose to specify the spatial variance, range variance, and ma
 An example of running the program is as follows:
 singularize('phenomena') # returns 'phenomenon'
 ```bash
-python3 bilateral_filter image.jpg 50 25 3
+python3 bilateral_filter.py image.jpg 50 25 3
 ```
 This produces a bilateral filtered version of "image.jpg" with a spatial variance of 50, range variance of 25 using a 3x3 mask.
 
