@@ -1,5 +1,4 @@
 import numpy as np
-import random
 import cv2
 import sys
 

@@ -26,3 +26,8 @@ The filter is built in python and requires python3 to run.
 The filter runs rather slow, so I recommend using a low-res image such as image.jpg provides in the main directory.
 
 Using large masks will increase the time it takes for the algorithm to run, so I suggest picking something small like 3 or 5.
+
+## Necessary Packages
+numpy
+cv2
+sys
